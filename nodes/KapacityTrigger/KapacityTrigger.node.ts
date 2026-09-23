@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 import type {
 	IDataObject,
 	IHookFunctions,
@@ -29,9 +29,26 @@ const EVENTS = [
 /** Kapacity signs with the "Standard Webhooks" convention; a message older than this is refused (replay). */
 const TIMESTAMP_TOLERANCE_SEC = 300;
 
-type StaticData = { webhookId?: string; secret?: string };
+/**
+ * A secret header, unique to each subscription, that Kapacity adds to every call. It comes on top of the signature:
+ * a call without it is refused before anything else, and the subscription shows it in Kapacity (Integrations).
+ */
+const KEY_HEADER = 'X-Kapacity-Key';
+
+type StaticData = { webhookId?: string; secret?: string; headerKey?: string };
 
 const sameEvents = (a: string[], b: string[]) => a.length === b.length && a.every((e) => b.includes(e));
+
+/** The subtitle under the node: the names of the events, not their codes. */
+const EVENT_NAMES = Object.fromEntries(EVENTS.map((e) => [e.value, e.name]));
+const SUBTITLE = `={{$parameter["events"].map(e => (${JSON.stringify(EVENT_NAMES)})[e] || e).join(", ")}}`;
+
+/** Compares two secrets in constant time. */
+function sameSecret(given: string, expected: string): boolean {
+	const a = Buffer.from(given);
+	const b = Buffer.from(expected);
+	return a.length === b.length && timingSafeEqual(a, b);
+}
 
 export class KapacityTrigger implements INodeType {
 	description: INodeTypeDescription = {
@@ -40,7 +57,7 @@ export class KapacityTrigger implements INodeType {
 		icon: { light: 'file:../../icons/kapacity.svg', dark: 'file:../../icons/kapacity.dark.svg' },
 		group: ['trigger'],
 		version: 1,
-		subtitle: '={{$parameter["events"].join(", ")}}',
+		subtitle: SUBTITLE,
 		description: 'Starts the workflow when something happens in Kapacity',
 		defaults: { name: 'Kapacity Trigger' },
 		inputs: [],
@@ -86,13 +103,21 @@ export class KapacityTrigger implements INodeType {
 				const hooks = (response.webhooks as IDataObject[] | undefined) ?? [];
 				const hook = hooks.find((h) => h.id === data.webhookId);
 				const events = this.getNodeParameter('events') as string[];
-				if (hook && hook.url === this.getNodeWebhookUrl('default') && sameEvents(hook.evenements as string[], events)) {
+				if (
+					hook &&
+					hook.url === this.getNodeWebhookUrl('default') &&
+					sameEvents(hook.evenements as string[], events) &&
+					// A subscription made by 0.1.0 has no key header: it is recreated with one.
+					hook.entete_nom === KEY_HEADER &&
+					!!data.headerKey
+				) {
 					return true;
 				}
 				// Gone, or no longer what the node asks for: it is recreated with the right settings.
 				if (hook) await kapacityApiRequest.call(this, 'DELETE', `/webhooks/${data.webhookId}`).catch(() => undefined);
 				delete data.webhookId;
 				delete data.secret;
+				delete data.headerKey;
 				return false;
 			},
 
@@ -101,11 +126,13 @@ export class KapacityTrigger implements INodeType {
 				if (!events.length) throw new NodeOperationError(this.getNode(), 'Choose at least one event');
 				const options = this.getNodeParameter('options', {}) as IDataObject;
 				const workflowName = this.getWorkflow().name ?? '';
+				const headerKey = randomBytes(32).toString('base64url');
 				const body: IDataObject = {
 					nom: `n8n · ${workflowName || 'workflow'}`.slice(0, 80),
 					url: this.getNodeWebhookUrl('default'),
 					evenements: events,
 					ignorer_api: options.ignoreApiWrites !== false,
+					entete: { nom: KEY_HEADER, valeur: headerKey },
 					description: 'Created by the n8n Kapacity Trigger. Deactivating the workflow deletes it.',
 				};
 				let response: IDataObject;
@@ -127,6 +154,7 @@ export class KapacityTrigger implements INodeType {
 				const data = this.getWorkflowStaticData('node') as StaticData;
 				data.webhookId = String((response.webhook as IDataObject).id);
 				data.secret = String(response.secret);
+				data.headerKey = headerKey;
 				return true;
 			},
 
@@ -143,6 +171,7 @@ export class KapacityTrigger implements INodeType {
 				}
 				delete data.webhookId;
 				delete data.secret;
+				delete data.headerKey;
 				return true;
 			},
 		},
@@ -152,6 +181,16 @@ export class KapacityTrigger implements INodeType {
 		const data = this.getWorkflowStaticData('node') as StaticData;
 		const request = this.getRequestObject();
 		const body = this.getBodyData() as IDataObject;
+		const refuse = (error: string): IWebhookResponseData => {
+			this.getResponseObject().status(401).json({ error });
+			return { noWebhookResponse: true };
+		};
+
+		// First the key header, then the signature: both must be right.
+		if (data.headerKey) {
+			const given = (this.getHeaderData() as IDataObject)[KEY_HEADER.toLowerCase()];
+			if (typeof given !== 'string' || !sameSecret(given, data.headerKey)) return refuse('Invalid key');
+		}
 
 		if (data.secret) {
 			const headers = this.getHeaderData() as IDataObject;
@@ -160,11 +199,7 @@ export class KapacityTrigger implements INodeType {
 			const signatures = String(headers['webhook-signature'] ?? '');
 			const rawBody = (request as { rawBody?: Buffer }).rawBody;
 			const payload = rawBody ? rawBody.toString('utf8') : JSON.stringify(body);
-			if (!verifySignature(data.secret, id, timestamp, payload, signatures)) {
-				const response = this.getResponseObject();
-				response.status(401).json({ error: 'Invalid signature' });
-				return { noWebhookResponse: true };
-			}
+			if (!verifySignature(data.secret, id, timestamp, payload, signatures)) return refuse('Invalid signature');
 		}
 
 		const headers = this.getHeaderData() as IDataObject;

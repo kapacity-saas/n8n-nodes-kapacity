@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-kapacity",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "n8n nodes for Kapacity, the all-in-one sales CRM: contacts, CRM tables, contracts with e-signature, appointments, forms, payments and real-time webhooks.",
 	"license": "MIT",
 	"homepage": "https://github.com/kapacity-saas/n8n-nodes-kapacity#readme",
