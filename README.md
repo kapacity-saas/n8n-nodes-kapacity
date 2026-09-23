@@ -1,0 +1,101 @@
+# n8n-nodes-kapacity
+
+This is an n8n community node. It lets you use [Kapacity](https://kapacity.app) in your n8n workflows.
+
+Kapacity is an all-in-one sales platform for closing teams, coaches and course creators: a CRM built around the lead, appointment booking, qualification forms and e-signed contracts, in one pipeline.
+
+[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
+
+[Installation](#installation) ·
+[Operations](#operations) ·
+[Credentials](#credentials) ·
+[Compatibility](#compatibility) ·
+[Usage](#usage) ·
+[Resources](#resources) ·
+[Version history](#version-history)
+
+## Installation
+
+Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
+
+On a self-hosted n8n: **Settings > Community Nodes > Install**, then enter `n8n-nodes-kapacity`.
+
+## Operations
+
+The package contains two nodes.
+
+### Kapacity
+
+| Resource | Operations |
+| --- | --- |
+| Contact | Create, Create or Update (by e-mail), Delete, Get, Get Many, Update |
+| Row (your own CRM tables) | Create, Delete, Get, Get Many, Update |
+| Table | Get Columns, Get Many |
+| Contract | Send (from a template, for e-signature), Get (with its audit trail), Get Many |
+| Contract Template | Get Many |
+| Appointment | Get Many |
+| Appointment Type | Get Many |
+| Form | Get Many |
+| Form Response | Get Many |
+| Product | Get Many |
+| Payment | Get Many |
+| Member | Get Many |
+| Workspace | Get |
+
+What the node does for you, so you never write a request body:
+
+- **Fields by name.** When you create or update a contact or a row, the node lists the columns of the chosen base or table. You fill them in by name, and pick choices and members from a list.
+- **Amounts in euros.** You type `4500`, the node sends `450000` cents. It also converts amounts back to euros when it reads.
+- **Readable output.** By default a contact or a row comes out with column names, option labels and member names instead of IDs. Choose **Output Format: Raw** to get the API response as is.
+- **Pagination.** **Return All** reads every page for you.
+- **Contacts found by e-mail.** **Create or Update** updates the contact that has this e-mail, or creates it.
+
+### Kapacity Trigger
+
+Starts a workflow when something happens in Kapacity:
+
+Contact Created, Contact Updated, Row Created, Row Updated, Appointment Booked, Appointment Rescheduled, Appointment Canceled, Form Submitted, Contract Sent, Contract Signed, Payment Received.
+
+The trigger registers its webhook in Kapacity when the workflow is activated, and deletes it when the workflow is deactivated. Every call is signed by Kapacity and the trigger checks the signature ([Standard Webhooks](https://www.standardwebhooks.com/)).
+
+**Ignore Changes Made by the API** is on by default. Keep it on when the same workflow writes to Kapacity, otherwise it would start itself again, endlessly.
+
+## Credentials
+
+You need a Kapacity workspace, as an administrator, and an API key. The Kapacity interface is in French: the labels below are quoted as you will see them.
+
+1. In Kapacity, open **Intégrations** and scroll down to the **API** card.
+2. Click **Nouvelle clé**. Choose **Lecture et écriture** (read and write) if the workflow creates or changes data, or uses the trigger. Choose **Lecture seule** (read only) otherwise.
+3. Click **Créer la clé** and copy the key (it starts with `kap_live_`): it is shown only once.
+4. Copy the workspace ID shown in the same card (**Identifiant de votre espace**).
+5. In n8n, create a **Kapacity API** credential and paste the key and the workspace ID. Leave **Base URL** as `https://kapacity.app`.
+
+n8n checks the credential by calling the API: a wrong key or a key from another workspace is reported at once.
+
+## Compatibility
+
+Built with the n8n node CLI against `n8n-workflow` 2.x.
+
+The trigger needs n8n to be reachable on a public **https** address: Kapacity never calls a private or plain http address. On a local n8n, set `WEBHOOK_URL` to a tunnel address.
+
+## Usage
+
+**Send a contract when a deal is won.** Kapacity Trigger (Contact Updated) → IF status is "Won" → Kapacity, Contract, Send: pick the template, the contact comes from the trigger, set the amount. The output contains the signing link, which you can also send by WhatsApp or SMS (turn off **Send E-Mail**).
+
+**Import leads from another tool.** Your source node → Kapacity, Contact, Create or Update, map the e-mail and the fields. Turn off **Trigger Automations** in the options for a large import.
+
+**Follow up after a signature.** Kapacity Trigger (Contract Signed) → your e-mail, Slack or invoicing node.
+
+The API has a monthly quota per workspace. Each call counts, so prefer the trigger to a schedule that reads every five minutes.
+
+## Resources
+
+- [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
+- [Kapacity API documentation](https://kapacity.app/docs/api)
+- [Kapacity](https://kapacity.app)
+
+## Version history
+
+### 0.1.0
+
+First release: Kapacity node (13 resources) and Kapacity Trigger (11 events).

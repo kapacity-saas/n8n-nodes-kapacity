@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-kapacity.kapacityTrigger",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Sales", "Productivity"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/kapacity-saas/n8n-nodes-kapacity#credentials"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://kapacity.app/docs/api"
+			}
+		]
+	}
+}

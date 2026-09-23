@@ -1,0 +1,62 @@
+{
+	"name": "n8n-nodes-kapacity",
+	"version": "0.1.0",
+	"description": "n8n nodes for Kapacity, the all-in-one sales CRM: contacts, CRM tables, contracts with e-signature, appointments, forms, payments and real-time webhooks.",
+	"license": "MIT",
+	"homepage": "https://github.com/kapacity-saas/n8n-nodes-kapacity#readme",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"kapacity",
+		"crm",
+		"sales",
+		"e-signature",
+		"booking"
+	],
+	"author": {
+		"name": "Kapacity",
+		"email": "contact@kapacity.app"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kapacity-saas/n8n-nodes-kapacity.git"
+	},
+	"bugs": {
+		"url": "https://github.com/kapacity-saas/n8n-nodes-kapacity/issues"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist",
+		"!dist/tsconfig.tsbuildinfo",
+		"!dist/**/*.map"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/KapacityApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Kapacity/Kapacity.node.js",
+			"dist/nodes/KapacityTrigger/KapacityTrigger.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"eslint": "9.39.4",
+		"prettier": "3.8.3",
+		"release-it": "20.2.0",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
