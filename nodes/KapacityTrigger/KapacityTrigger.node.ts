@@ -8,7 +8,8 @@ import type {
 	IWebhookResponseData,
 	JsonObject,
 } from 'n8n-workflow';
-import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError } from 'n8n-workflow';
+import { MAIN_CONNECTION } from '../Kapacity/shared/connection';
 import { kapacityApiRequest } from '../Kapacity/shared/transport';
 
 /** The events Kapacity sends, in the order of the sales journey. */
@@ -61,7 +62,7 @@ export class KapacityTrigger implements INodeType {
 		description: 'Starts the workflow when something happens in Kapacity',
 		defaults: { name: 'Kapacity Trigger' },
 		inputs: [],
-		outputs: [NodeConnectionTypes.Main],
+		outputs: [MAIN_CONNECTION],
 		credentials: [{ name: 'kapacityApi', required: true }],
 		webhooks: [{ name: 'default', httpMethod: 'POST', responseMode: 'onReceived', path: 'webhook' }],
 		properties: [

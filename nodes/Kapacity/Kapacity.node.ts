@@ -6,8 +6,9 @@ import type {
 	INodeTypeDescription,
 	JsonObject,
 } from 'n8n-workflow';
-import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 import { ExecutionCache, runOperation } from './actions';
+import { MAIN_CONNECTION } from './shared/connection';
 import { listSearch, loadOptions, resourceMapping } from './methods';
 import { contactDescription } from './resources/contact';
 import { contractDescription } from './resources/contract';
@@ -36,8 +37,8 @@ export class Kapacity implements INodeType {
 		description: 'Work with the contacts, tables, contracts, appointments and payments of Kapacity',
 		defaults: { name: 'Kapacity' },
 		usableAsTool: true,
-		inputs: [NodeConnectionTypes.Main],
-		outputs: [NodeConnectionTypes.Main],
+		inputs: [MAIN_CONNECTION],
+		outputs: [MAIN_CONNECTION],
 		credentials: [{ name: 'kapacityApi', required: true }],
 		properties: [
 			{

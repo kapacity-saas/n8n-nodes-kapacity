@@ -101,6 +101,10 @@ The API has a monthly quota per workspace. Each call counts, so prefer the trigg
 
 ## Version history
 
+### 0.1.3
+
+Installs on n8n instances upgraded from 1.x that still keep an old n8n-workflow in ~/.n8n/nodes (the install used to fail with "Class could not be found").
+
 ### 0.1.2
 
 Kapacity Trigger: replacing an outdated webhook no longer hides a failed deletion. Only a 404 is ignored, so an event can never fire the workflow twice.
