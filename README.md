@@ -101,6 +101,10 @@ The API has a monthly quota per workspace. Each call counts, so prefer the trigg
 
 ## Version history
 
+### 0.1.2
+
+Kapacity Trigger: replacing an outdated webhook no longer hides a failed deletion. Only a 404 is ignored, so an event can never fire the workflow twice.
+
 ### 0.1.1
 
 Kapacity Trigger: each webhook gets its own secret header, checked on every call on top of the signature. A webhook created by 0.1.0 is recreated with it the next time the workflow is activated. The event names are shown under the node.

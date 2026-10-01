@@ -114,7 +114,15 @@ export class KapacityTrigger implements INodeType {
 					return true;
 				}
 				// Gone, or no longer what the node asks for: it is recreated with the right settings.
-				if (hook) await kapacityApiRequest.call(this, 'DELETE', `/webhooks/${data.webhookId}`).catch(() => undefined);
+				// Only a 404 (already deleted on the Kapacity side) is ignored: any other failure is raised, otherwise the
+				// old subscription would stay registered next to the new one and every event would fire the workflow twice.
+				if (hook) {
+					await kapacityApiRequest
+						.call(this, 'DELETE', `/webhooks/${data.webhookId}`)
+						.catch((error: { httpCode?: string }) => {
+							if (error.httpCode !== '404') throw error;
+						});
+				}
 				delete data.webhookId;
 				delete data.secret;
 				delete data.headerKey;

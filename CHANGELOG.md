@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Kapacity Trigger: when an outdated webhook is replaced, a failure to delete it is no longer silent. Only a 404 (already deleted in Kapacity) is ignored; any other error is raised, so the old webhook can never stay registered next to the new one and fire the workflow twice.
+
 ## 0.1.1
 
 - Kapacity Trigger: each webhook gets its own secret header (`X-Kapacity-Key`), checked on every call on top of the signature, and visible in Kapacity. A webhook created by 0.1.0 is recreated with it the next time the workflow is activated.
