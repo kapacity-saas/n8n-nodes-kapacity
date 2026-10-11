@@ -52,7 +52,7 @@ export const contactDescription: INodeProperties[] = [
 		noDataExpression: true,
 		default: { mappingMode: 'defineBelow', value: null },
 		required: true,
-		description: 'A new contact needs at least a first name or a last name. Fields left empty are not changed.',
+		description: 'A new contact needs at least a first name, a last name, an email or a phone. Fields left empty are not changed.',
 		typeOptions: {
 			loadOptionsDependsOn: ['base'],
 			resourceMapper: {
