@@ -142,6 +142,20 @@ async function contact(ctx: IExecuteFunctions, cache: ExecutionCache, operation:
 			return updateRecord(ctx, cache, base, locator(ctx, 'contactId', i), i);
 		case 'delete':
 			return deleteRecord(ctx, locator(ctx, 'contactId', i));
+		case 'move': {
+			// The same contact changes base: the API applies the rules of the Base menu of its record (default status of
+			// the base it goes to, "handed over" mark in Setting) and starts the automations of that base.
+			const destination = param<string>(ctx, 'destination', i, 'leads');
+			const options = param<IDataObject>(ctx, 'options', i, {});
+			const response = await kapacityApiRequest.call(
+				ctx,
+				'PATCH',
+				`/records/${locator(ctx, 'contactToMove', i)}`,
+				automationsQs(options),
+				{ base: destination },
+			);
+			return present(ctx, cache, destination, response.ligne as IDataObject, options);
+		}
 		case 'getAll': {
 			const filters = param<IDataObject>(ctx, 'filters', i, {});
 			const conditions: string[] = [];

@@ -28,7 +28,7 @@ The package contains two nodes.
 
 | Resource | Operations |
 | --- | --- |
-| Contact | Create, Create or Update (by e-mail), Delete, Get, Get Many, Update |
+| Contact | Create, Create or Update (by e-mail), Delete, Get, Get Many, Move, Update |
 | Row (your own CRM tables) | Create, Delete, Get, Get Many, Update |
 | Table | Get Columns, Get Many |
 | Contract | Send (from a template, for e-signature), Get (with its audit trail), Get Many |
@@ -49,6 +49,7 @@ What the node does for you, so you never write a request body:
 - **Readable output.** By default a contact or a row comes out with column names, option labels and member names instead of IDs. Choose **Output Format: Raw** to get the API response as is.
 - **Pagination.** **Return All** reads every page for you.
 - **Contacts found by e-mail.** **Create or Update** updates the contact that has this e-mail, or creates it.
+- **Setting to Mon Pipe.** **Move** hands a contact over from Setting to Mon Pipe (or back), as the Base menu of its record does: same contact, default status of the new base, automations of the new base.
 
 ### Kapacity Trigger
 
@@ -100,6 +101,10 @@ The API has a monthly quota per workspace. Each call counts, so prefer the trigg
 - [Kapacity](https://kapacity.app)
 
 ## Version history
+
+### 0.1.4
+
+Contact, Move: hands a contact over from Setting to Mon Pipe, or back. A contact can be created with only an e-mail or only a phone.
 
 ### 0.1.3
 

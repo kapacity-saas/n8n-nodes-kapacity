@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4
+
+- Contact, Move: moves a contact from Setting to Mon Pipe, or back, with the rules of the Base menu of its record in Kapacity. It stays the same contact (same ID, appointments, answers and contracts), its status becomes the default status of the new base, the automations of the new base run, and a contact moved to Mon Pipe stays visible in Setting, marked as handed over. Moving a contact to the base it is already in returns it unchanged.
+- Contact, Create: the description says that an e-mail or a phone alone is enough to create a contact.
+
 ## 0.1.3
 
 - Loads on n8n instances that kept an old copy of n8n-workflow (before 1.90) in ~/.n8n/nodes, typically after an upgrade from n8n 1.x. n8n strips the peer dependencies of a community package, so the node used that copy, which has no NodeConnectionTypes, and the install failed with "Class could not be found". NodeConnectionTypes.Main is still used whenever it exists, with "main" as the fallback.
