@@ -74,7 +74,7 @@ You need a Kapacity workspace, as an administrator, and an API key. The Kapacity
 2. Click **Nouvelle clé**. Choose **Lecture et écriture** (read and write) if the workflow creates or changes data, or uses the trigger. Choose **Lecture seule** (read only) otherwise.
 3. Click **Créer la clé** and copy the key (it starts with `kap_live_`): it is shown only once.
 4. Copy the workspace ID shown in the same card (**Identifiant de votre espace**).
-5. In n8n, create a **Kapacity API** credential and paste the key and the workspace ID. Leave **Base URL** as `https://kapacity.app`.
+5. In n8n, create a **Kapacity API** credential and paste the key and the workspace ID. Leave **Base URL** as `https://kapacity.app`: the Kapacity address only, without `/api/v1/w/…` after it (since 0.1.5, a Base URL pasted with that path is brought back to the Kapacity address).
 
 n8n checks the credential by calling the API: a wrong key or a key from another workspace is reported at once.
 

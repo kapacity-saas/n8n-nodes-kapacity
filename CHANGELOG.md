@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5
+
+- Credentials: a Base URL pasted with the API path (`https://kapacity.app/api/v1/w/<workspace>`) is brought back to the Kapacity address. The node adds `/api/v1/w/<workspace>` itself: the doubled path reached nothing, so lists stayed empty without any error. The credential test applies the same rule.
+- Clear messages for the two new error codes of the API: `adresse_de_base` (the Base URL already contains the API path) and `adresse_inconnue` (an address that does not exist).
+- The Base URL field says what to put in it: the Kapacity address only.
+
 ## 0.1.4
 
 - Contact, Move: moves a contact from Setting to Mon Pipe, or back, with the rules of the Base menu of its record in Kapacity. It stays the same contact (same ID, appointments, answers and contracts), its status becomes the default status of the new base, the automations of the new base run, and a contact moved to Mon Pipe stays visible in Setting, marked as handed over. Moving a contact to the base it is already in returns it unchanged.

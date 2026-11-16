@@ -41,7 +41,8 @@ export class KapacityApi implements ICredentialType {
 			name: 'baseUrl',
 			type: 'string',
 			default: 'https://kapacity.app',
-			description: 'Only change this if Kapacity gave you another address',
+			description:
+				'The Kapacity address only, without /api/v1/w/… after it: the node adds that path itself. Only change this if Kapacity gave you another address',
 		},
 	];
 
@@ -56,7 +57,9 @@ export class KapacityApi implements ICredentialType {
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials.baseUrl.replace(/\\/+$/, "")}}/api/v1/w/{{$credentials.workspaceId}}',
+			// Same rule as kapacityOrigin(): a Base URL pasted with the API path is brought back to the Kapacity address.
+			baseURL:
+				'={{$credentials.baseUrl.trim().replace(/\\/+$/, "").replace(/\\/api(\\/v1(\\/w(\\/[^/]*)?)?)?$/i, "")}}/api/v1/w/{{$credentials.workspaceId}}',
 			url: '/me',
 			method: 'GET',
 		},

@@ -31,13 +31,27 @@ const MESSAGES: Record<string, string> = {
 	disjoncteur: 'Writes to this record are paused: it was changed too often in a few seconds (loop protection)',
 	limite_plan: 'A limit of the workspace plan is reached',
 	api_fermee: 'The API is not open on this workspace yet',
+	adresse_de_base:
+		'The Base URL of the credentials already contains the API path: set it to https://kapacity.app only, the node adds the rest',
+	adresse_inconnue: 'This address does not exist in the Kapacity API',
 };
+
+/**
+ * The Kapacity address alone, from the Base URL of the credentials. A Base URL pasted with the API path
+ * (`https://kapacity.app/api/v1/w/<workspace>`, the long address once shown in Kapacity) is brought back to
+ * `https://kapacity.app`: the node adds `/api/v1/w/<workspace>` itself, and the doubled path reached nothing.
+ */
+export function kapacityOrigin(raw: unknown): string {
+	const base = String(raw || 'https://kapacity.app')
+		.trim()
+		.replace(/\/+$/, '');
+	return base.replace(/\/api(\/v1(\/w(\/[^/]*)?)?)?$/i, '') || 'https://kapacity.app';
+}
 
 /** Base address of a workspace: `https://kapacity.app/api/v1/w/<workspace>`. */
 async function baseOf(ctx: Context): Promise<string> {
 	const credentials = await ctx.getCredentials('kapacityApi');
-	const base = String(credentials.baseUrl || 'https://kapacity.app').replace(/\/+$/, '');
-	return `${base}/api/v1/w/${String(credentials.workspaceId).trim()}`;
+	return `${kapacityOrigin(credentials.baseUrl)}/api/v1/w/${String(credentials.workspaceId).trim()}`;
 }
 
 /** One call to the Kapacity API. Every request of the package goes through here. */
