@@ -39,7 +39,7 @@ export const tableDescription: INodeProperties[] = [
 
 export const contractTemplateDescription: INodeProperties[] = [
 	operations('contractTemplate', [
-		getAll('contract templates', 'Retrieve the contract templates, and whether each one can be sent now'),
+		getAll('contract templates', 'Retrieve the contract templates, whether each one can be sent now, and the roles that sign it'),
 	]),
 ];
 

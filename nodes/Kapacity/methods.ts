@@ -98,6 +98,27 @@ export const loadOptions = {
 		return (status?.options ?? []).map((o) => ({ name: o.libelle, value: o.id }));
 	},
 
+	/**
+	 * The roles a signer can take in the chosen contract template: neither the Client (always the contact) nor a role
+	 * whose signature is already placed in the template. "No Role" comes first and is always there, even when the
+	 * template is not chosen yet or set by an expression: the person then signs at the end of the contract.
+	 */
+	async getContractTemplateRoles(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+		const noRole: INodePropertyOptions = {
+			name: 'No Role',
+			value: '',
+			description: 'The person signs at the end of the contract',
+		};
+		const templateId = locatorValue(this, 'templateId').trim();
+		if (!templateId || templateId.startsWith('=')) return [noRole];
+		const response = await kapacityApiRequest.call(this, 'GET', '/contract-templates');
+		const template = ((response.modeles as IDataObject[] | undefined) ?? []).find((t) => String(t.id) === templateId);
+		const roles = ((template?.roles as IDataObject[] | undefined) ?? []).filter(
+			(r) => r.id !== 'client' && r.signature_posee !== true,
+		);
+		return [noRole, ...roles.map((r) => ({ name: String(r.libelle ?? r.id), value: String(r.id) }))];
+	},
+
 	/** The columns of the chosen table, for a filter condition. */
 	async getTableColumns(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 		const table = locatorValue(this, 'table');

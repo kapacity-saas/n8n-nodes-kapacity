@@ -235,6 +235,27 @@ function filterValue(columns: KapacityColumn[], condition: IDataObject): string 
 
 // ---- Contract -------------------------------------------------------------------------------------------------
 
+/**
+ * The other signers of a contract, as the API reads them: `{ role, nom, email }`, role and e-mail left out when empty
+ * (no role: the person signs at the end of the contract). A signer without a name stops the item before any call: a
+ * line dropped in silence would send the contract to the contact alone, the roles of the template removed.
+ */
+function signersOf(ctx: IExecuteFunctions, i: number): IDataObject[] {
+	const lines = param<IDataObject>(ctx, 'signers', i, {}).signer as IDataObject[] | undefined;
+	return (lines ?? []).map((line, n) => {
+		const nom = String(line.name ?? '').trim();
+		if (!nom) {
+			throw new NodeOperationError(ctx.getNode(), `Signer ${n + 1}: the name is required`, { itemIndex: i });
+		}
+		const signer: IDataObject = { nom };
+		const role = String(line.role ?? '').trim();
+		if (role) signer.role = role;
+		const email = String(line.email ?? '').trim();
+		if (email) signer.email = email;
+		return signer;
+	});
+}
+
 async function contract(ctx: IExecuteFunctions, operation: string, i: number): Promise<Result> {
 	switch (operation) {
 		case 'send': {
@@ -248,6 +269,8 @@ async function contract(ctx: IExecuteFunctions, operation: string, i: number): P
 			if (more.title) body.titre = more.title;
 			if (more.sendEmail === false) body.envoyer_email = false;
 			if (more.emailTemplateId) body.message_email_id = String(more.emailTemplateId).trim();
+			const signataires = signersOf(ctx, i);
+			if (signataires.length) body.signataires = signataires;
 			const headers: IDataObject = more.idempotencyKey ? { 'Idempotency-Key': String(more.idempotencyKey) } : {};
 			const response = await kapacityApiRequest.call(ctx, 'POST', '/contracts', automationsQs(more), body, headers);
 			const email = (response.email as IDataObject | undefined) ?? {};

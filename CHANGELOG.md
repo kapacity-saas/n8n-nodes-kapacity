@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6
+
+- Contract, Send: **Signers**, other people who sign the contract with the contact (7 at most). Each signer has a role (chosen from the roles of the selected template, or **No Role**: the person signs at the end of the contract), a name (required) and an e-mail (optional). The roles listed are those that sign online: neither the Client (always the contact) nor a role whose signature is already placed in the template. Each signer gets their own signing link, by e-mail if they have an address and **Send E-Mail** is on; the output lists them under `signataires`. A role of the template that is not given is removed from this contract, as in Kapacity. A signer without a name stops the item before anything is sent. Without signers, the request is the same as before.
+- Contract, Get Many: the Status filter offers **In Signing** (`en_cours`): at least one signer has signed, not all of them yet.
+- Contract Template, Get Many: the description says that each template comes with the roles that sign it.
+
 ## 0.1.5
 
 - Credentials: a Base URL pasted with the API path (`https://kapacity.app/api/v1/w/<workspace>`) is brought back to the Kapacity address. The node adds `/api/v1/w/<workspace>` itself: the doubled path reached nothing, so lists stayed empty without any error. The credential test applies the same rule.

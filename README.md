@@ -31,8 +31,8 @@ The package contains two nodes.
 | Contact | Create, Create or Update (by e-mail), Delete, Get, Get Many, Move, Update |
 | Row (your own CRM tables) | Create, Delete, Get, Get Many, Update |
 | Table | Get Columns, Get Many |
-| Contract | Send (from a template, for e-signature), Get (with its audit trail), Get Many |
-| Contract Template | Get Many |
+| Contract | Send (from a template, for e-signature, with other signers if you want), Get (with its audit trail and where each signer stands), Get Many (filter by status: Draft, Sent, Viewed, In Signing, Signed) |
+| Contract Template | Get Many (with the roles that sign each template) |
 | Appointment | Get Many |
 | Appointment Type | Get Many |
 | Form | Get Many |
@@ -50,6 +50,7 @@ What the node does for you, so you never write a request body:
 - **Pagination.** **Return All** reads every page for you.
 - **Contacts found by e-mail.** **Create or Update** updates the contact that has this e-mail, or creates it.
 - **Setting to Mon Pipe.** **Move** hands a contact over from Setting to Mon Pipe (or back), as the Base menu of its record does: same contact, default status of the new base, automations of the new base.
+- **Several signers.** **Contract, Send** takes other signers next to the contact (**Signers**: role, name, e-mail; 7 at most). The roles are listed from the chosen template; **No Role** makes the person sign at the end of the contract. Each signer gets their own signing link (in the output, under `signataires`). The contract is **In Signing** once someone has signed, and **Signed** when the last one has.
 
 ### Kapacity Trigger
 
@@ -101,6 +102,14 @@ The API has a monthly quota per workspace. Each call counts, so prefer the trigg
 - [Kapacity](https://kapacity.app)
 
 ## Version history
+
+### 0.1.6
+
+Contract, Send: other signers next to the contact (role from the template, name, e-mail), each with their own signing link. Contract, Get Many: the **In Signing** status.
+
+### 0.1.5
+
+Credentials: a Base URL pasted with the API path (`https://kapacity.app/api/v1/w/<workspace>`) is brought back to the Kapacity address, so lists no longer stay empty without an error.
 
 ### 0.1.4
 

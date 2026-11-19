@@ -8,6 +8,7 @@ export const CONTRACT_STATUSES = [
 	{ name: 'Draft', value: 'brouillon' },
 	{ name: 'Sent', value: 'envoye' },
 	{ name: 'Viewed', value: 'vu' },
+	{ name: 'In Signing', value: 'en_cours', description: 'At least one signer has signed, not all of them yet' },
 	{ name: 'Signed', value: 'signe' },
 ];
 
@@ -47,6 +48,52 @@ export const contractDescription: INodeProperties[] = [
 		required: true,
 		description: 'The contract amount, written in the contract in place of {{montant}}',
 		displayOptions: { show: on('send') },
+	},
+	{
+		displayName: 'Signers',
+		name: 'signers',
+		type: 'fixedCollection',
+		typeOptions: { multipleValues: true },
+		placeholder: 'Add Signer',
+		default: {},
+		description:
+			'Other people who sign the contract with the contact (7 at most). The contact always signs, as the Client. A role of the template that you do not give here is removed from this contract. Each signer gets their own signing link, by e-mail if they have an address.',
+		displayOptions: { show: on('send') },
+		options: [
+			{
+				displayName: 'Signer',
+				name: 'signer',
+				values: [
+					{
+						displayName: 'Role Name or ID',
+						name: 'role',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getContractTemplateRoles', loadOptionsDependsOn: ['templateId.value'] },
+						default: '',
+						description:
+							'The role of the template this person signs as. Roles whose signature is already placed in the template are not listed. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+					},
+					{
+						displayName: 'Name',
+						name: 'name',
+						type: 'string',
+						default: '',
+						required: true,
+						placeholder: 'e.g. Marc Martin',
+						description: 'The full name of the person who signs',
+					},
+					{
+						displayName: 'E-Mail',
+						name: 'email',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. marc@example.com',
+						description:
+							'Where Kapacity e-mails their signing link (not when Send E-Mail is off). Leave empty to send the link yourself: it is in the output, under signataires.',
+					},
+				],
+			},
+		],
 	},
 	{
 		displayName: 'Additional Fields',
